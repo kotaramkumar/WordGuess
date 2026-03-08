@@ -1,0 +1,115 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// WordGuess — Firestore Security Rules
+//
+// How to deploy:
+//   Firebase Console → Firestore Database → Rules → paste and Publish
+//   OR: firebase deploy --only firestore:rules  (requires firebase-tools)
+// ─────────────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /sessions/{sessionId} {
+
+      // ── Read ────────────────────────────────────────────────────────────────
+      // Anyone can read sessions (browse lobby list, watch game state)
+      allow read: if true;
+
+      // ── Create ──────────────────────────────────────────────────────────────
+      // A new session must have the correct shape and sane values.
+      // This prevents garbage / spam sessions from being written.
+      allow create: if
+        request.resource.data.keys().hasAll([
+          'code', 'hostId', 'status', 'currentWord', 'currentRound',
+          'wordLength', 'playerIds', 'totalPlayers', 'winner', 'createdAt'
+        ])
+        && request.resource.data.status     == 'lobby'
+        && request.resource.data.currentRound == 0
+        && request.resource.data.currentWord  == ''
+        && request.resource.data.winner       == null
+        && request.resource.data.totalPlayers == 1
+        && request.resource.data.playerIds.size() == 1
+        && request.resource.data.wordLength is int
+        && request.resource.data.wordLength >= 4
+        && request.resource.data.wordLength <= 8
+        && request.resource.data.hostId is string
+        && request.resource.data.hostId.size() > 0
+        && request.resource.data.code is string
+        && request.resource.data.code.size() > 0;
+
+      // ── Update ──────────────────────────────────────────────────────────────
+      // Only the fields that the game legitimately changes are permitted.
+      // Immutable fields (wordLength, code, createdAt) can never be altered.
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'status', 'currentWord', 'currentRound',
+            'playerIds', 'totalPlayers', 'winner', 'hostId'
+          ])
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+          || request.resource.data.status in ['lobby', 'playing', 'gameOver']
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalPlayers'])
+          || (request.resource.data.totalPlayers is int
+              && request.resource.data.totalPlayers >= 0
+              && request.resource.data.totalPlayers <= 16)
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentRound'])
+          || (request.resource.data.currentRound is int
+              && request.resource.data.currentRound >= 0)
+        );
+
+      // ── Delete ───────────────────────────────────────────────────────────────
+      // Sessions can only be deleted when empty (last player left) or game is over.
+      allow delete: if
+        resource.data.totalPlayers <= 1
+        || resource.data.status == 'gameOver';
+
+
+      // ════════════════════════════════════════════════════════════════════════
+      match /players/{playerId} {
+
+        // ── Read ──────────────────────────────────────────────────────────────
+        allow read: if true;
+
+        // ── Create ────────────────────────────────────────────────────────────
+        // Player doc must start clean — no pre-loaded guesses or score.
+        allow create: if
+          request.resource.data.keys().hasAll([
+            'name', 'color', 'isHost', 'guesses',
+            'resultsJson', 'hasWon', 'score', 'joinedAt', 'lastActive'
+          ])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1
+          && request.resource.data.name.size() <= 20
+          && request.resource.data.guesses  is list
+          && request.resource.data.guesses.size() == 0
+          && request.resource.data.hasWon   == false
+          && request.resource.data.score    == 0
+          && request.resource.data.isHost   is bool
+          && request.resource.data.resultsJson == '[]';
+
+        // ── Update ────────────────────────────────────────────────────────────
+        // Players can only update their own guess submission fields.
+        // Name, color, isHost, and joinedAt are immutable after creation.
+        allow update: if
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['guesses', 'resultsJson', 'hasWon', 'score', 'lastActive'])
+          && request.resource.data.guesses     is list
+          && request.resource.data.hasWon      is bool
+          && request.resource.data.resultsJson is string
+          && request.resource.data.score       is int
+          && request.resource.data.score       >= 0;
+
+        // ── Delete ────────────────────────────────────────────────────────────
+        // Players can leave (delete their own doc) at any time.
+        allow delete: if true;
+      }
+    }
+
+  }
+}

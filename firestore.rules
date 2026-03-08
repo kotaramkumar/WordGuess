@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /sessions/{sessionId} {
+
+      // ── Read ────────────────────────────────────────────────────────────────
+      allow read: if true;
+
+      // ── Create ──────────────────────────────────────────────────────────────
+      allow create: if
+        request.resource.data.keys().hasAll([
+          'code', 'hostId', 'status', 'currentWord', 'currentRound',
+          'wordLength', 'playerIds', 'totalPlayers', 'winner', 'createdAt'
+        ])
+        && request.resource.data.status      == 'lobby'
+        && request.resource.data.currentRound == 0
+        && request.resource.data.currentWord  == ''
+        && request.resource.data.winner       == null
+        && request.resource.data.totalPlayers == 1
+        && request.resource.data.playerIds.size() == 1
+        && request.resource.data.wordLength is int
+        && request.resource.data.wordLength >= 4
+        && request.resource.data.wordLength <= 8
+        && request.resource.data.hostId is string
+        && request.resource.data.hostId.size() > 0
+        && request.resource.data.code is string
+        && request.resource.data.code.size() > 0;
+
+      // ── Update ──────────────────────────────────────────────────────────────
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'status', 'currentWord', 'currentRound',
+            'playerIds', 'totalPlayers', 'winner', 'hostId'
+          ])
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+          || request.resource.data.status in ['lobby', 'playing', 'gameOver']
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalPlayers'])
+          || (request.resource.data.totalPlayers is int
+              && request.resource.data.totalPlayers >= 0
+              && request.resource.data.totalPlayers <= 16)
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentRound'])
+          || (request.resource.data.currentRound is int
+              && request.resource.data.currentRound >= 0)
+        );
+
+      // ── Delete ───────────────────────────────────────────────────────────────
+      allow delete: if
+        resource.data.totalPlayers <= 1
+        || resource.data.status == 'gameOver';
+
+      // ════════════════════════════════════════════════════════════════════════
+      match /players/{playerId} {
+
+        // ── Read ──────────────────────────────────────────────────────────────
+        allow read: if true;
+
+        // ── Create ────────────────────────────────────────────────────────────
+        allow create: if
+          request.resource.data.keys().hasAll([
+            'name', 'color', 'isHost', 'guesses',
+            'resultsJson', 'hasWon', 'score', 'joinedAt', 'lastActive'
+          ])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1
+          && request.resource.data.name.size() <= 20
+          && request.resource.data.guesses is list
+          && request.resource.data.guesses.size() == 0
+          && request.resource.data.hasWon   == false
+          && request.resource.data.score    == 0
+          && request.resource.data.isHost   is bool
+          && request.resource.data.resultsJson == '[]';
+
+        // ── Update ────────────────────────────────────────────────────────────
+        allow update: if
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['guesses', 'resultsJson', 'hasWon', 'score', 'lastActive'])
+          && request.resource.data.guesses     is list
+          && request.resource.data.hasWon      is bool
+          && request.resource.data.resultsJson is string
+          && request.resource.data.score       is int
+          && request.resource.data.score       >= 0;
+
+        // ── Delete ────────────────────────────────────────────────────────────
+        allow delete: if true;
+      }
+    }
+
+  }
+}

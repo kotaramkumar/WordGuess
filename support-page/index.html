@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Guess – Support</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #121213;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+    }
+
+    .logo-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tile {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .tile-green  { background: #538d4e; }
+    .tile-yellow { background: #b59f3b; }
+    .tile-gray   { background: #3a3a3c; }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 6px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    h1 span { color: #538d4e; }
+
+    .tagline {
+      color: #818384;
+      font-size: 14px;
+      letter-spacing: 2px;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .card {
+      background: #1a1a1b;
+      border: 1px solid #3a3a3c;
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #818384;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .card p, .card li {
+      font-size: 15px;
+      color: #d7dadc;
+      line-height: 1.6;
+    }
+
+    .card ul {
+      padding-left: 20px;
+    }
+
+    .card ul li {
+      margin-bottom: 8px;
+    }
+
+    .contact-btn {
+      display: inline-block;
+      margin-top: 16px;
+      background: #538d4e;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      letter-spacing: 1px;
+    }
+
+    .contact-btn:hover { background: #6aaf64; }
+
+    footer {
+      margin-top: 40px;
+      color: #3a3a3c;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <div class="logo-tiles">
+    <div class="tile tile-green">W</div>
+    <div class="tile tile-yellow">G</div>
+    <div class="tile tile-gray">R</div>
+    <div class="tile tile-green">D</div>
+  </div>
+
+  <h1>WORD <span>GUESS</span></h1>
+  <p class="tagline">Multiplayer Word Game</p>
+
+  <!-- How to Play -->
+  <div class="card">
+    <h2>How to Play</h2>
+    <ul>
+      <li>Create a session or join one with a session code.</li>
+      <li>Choose a word length — 4, 5, 6, 7, or 8 letters.</li>
+      <li>Each round, all players submit their guess simultaneously.</li>
+      <li><strong style="color:#538d4e;">Green</strong> — correct letter, correct position.</li>
+      <li><strong style="color:#b59f3b;">Yellow</strong> — correct letter, wrong position.</li>
+      <li><strong style="color:#818384;">Gray</strong> — letter not in the word.</li>
+      <li>The player who guesses the word in the fewest rounds wins!</li>
+    </ul>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <ul>
+      <li><strong>Do I need an account?</strong><br />No. Just enter your name and join or create a session instantly.</li>
+      <li style="margin-top:12px;"><strong>How many players can join?</strong><br />Up to 16 players per session.</li>
+      <li style="margin-top:12px;"><strong>What word lengths are available?</strong><br />4, 5, 6, 7, or 8 letters — chosen by the session host.</li>
+      <li style="margin-top:12px;"><strong>Is the game free?</strong><br />Yes, Word Guess is completely free to play.</li>
+    </ul>
+  </div>
+
+  <!-- Contact -->
+  <div class="card">
+    <h2>Contact &amp; Support</h2>
+    <p>Having trouble or found a bug? We'd love to hear from you.</p>
+    <a class="contact-btn" href="mailto:ramkumar.infics@gmail.com">Email Support</a>
+  </div>
+
+  <footer>
+    &copy; 2025 Ramkumar Kota &nbsp;·&nbsp; Word Guess
+  </footer>
+
+</body>
+</html>
