@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGame } from '../context/GameContext';
-import { createSession, joinSession, subscribeToLobbySessions } from '../services/gameService';
+import { createSession, joinSession, startGame, subscribeToLobbySessions } from '../services/gameService';
 
 const WORD_LENGTH_OPTIONS = [4, 5, 6, 7, 8];
 
@@ -40,6 +40,24 @@ export default function HomeScreen({ navigation }) {
       await setPlayerName(name);
       const { sessionId, code } = await createSession(playerId, name, wordLength);
       navigation.navigate('Lobby', { sessionId, code, isHost: true });
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSoloPractice = async () => {
+    const name = nameInput.trim();
+    if (!name) { Alert.alert('Enter your name first!'); return; }
+    if (!playerId) return;
+
+    setLoading(true);
+    try {
+      await setPlayerName(name);
+      const { sessionId } = await createSession(playerId, name, wordLength);
+      await startGame(sessionId);
+      navigation.navigate('Game', { sessionId });
     } catch (e) {
       Alert.alert('Error', e.message);
     } finally {
@@ -152,34 +170,32 @@ export default function HomeScreen({ navigation }) {
                 ))
               )}
 
-              {/* Manual code entry for returning users */}
-              {isReturningUser && (
-                <View style={styles.manualJoinBox}>
-                  <Text style={styles.label}>JOIN BY CODE</Text>
-                  <View style={styles.manualJoinRow}>
-                    <TextInput
-                      style={styles.codeInput}
-                      value={manualCode}
-                      onChangeText={setManualCode}
-                      placeholder="e.g. 123-456-789"
-                      placeholderTextColor="#555"
-                      autoCapitalize="characters"
-                      autoCorrect={false}
-                      maxLength={11}
-                    />
-                    <TouchableOpacity
-                      style={[styles.joinCodeBtn, loading && styles.btnDisabled]}
-                      onPress={handleJoinByCode}
-                      disabled={loading}
-                      activeOpacity={0.8}
-                    >
-                      {loading
-                        ? <ActivityIndicator color="#fff" size="small" />
-                        : <Text style={styles.joinCodeBtnText}>Join</Text>}
-                    </TouchableOpacity>
-                  </View>
+              {/* Manual code entry — always visible */}
+              <View style={styles.manualJoinBox}>
+                <Text style={styles.label}>JOIN BY CODE</Text>
+                <View style={styles.manualJoinRow}>
+                  <TextInput
+                    style={styles.codeInput}
+                    value={manualCode}
+                    onChangeText={setManualCode}
+                    placeholder="e.g. 123-456-789"
+                    placeholderTextColor="#555"
+                    autoCapitalize="characters"
+                    autoCorrect={false}
+                    maxLength={11}
+                  />
+                  <TouchableOpacity
+                    style={[styles.joinCodeBtn, loading && styles.btnDisabled]}
+                    onPress={handleJoinByCode}
+                    disabled={loading}
+                    activeOpacity={0.8}
+                  >
+                    {loading
+                      ? <ActivityIndicator color="#fff" size="small" />
+                      : <Text style={styles.joinCodeBtnText}>Join</Text>}
+                  </TouchableOpacity>
                 </View>
-              )}
+              </View>
 
               <TouchableOpacity
                 style={styles.createLink}
@@ -222,6 +238,17 @@ export default function HomeScreen({ navigation }) {
                 {loading
                   ? <ActivityIndicator color="#fff" />
                   : <Text style={styles.btnText}>Start Session →</Text>}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.btn, styles.btnSolo, loading && styles.btnDisabled]}
+                onPress={handleSoloPractice}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                {loading
+                  ? <ActivityIndicator color="#fff" />
+                  : <Text style={styles.btnText}>Solo Practice →</Text>}
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => setShowCreate(false)} style={styles.back}>
@@ -320,6 +347,7 @@ const styles = StyleSheet.create({
   lengthBtnSub: { color: '#555', fontSize: 9, marginTop: 1 },
   btn: { borderRadius: 14, padding: 16, alignItems: 'center' },
   btnPrimary: { backgroundColor: '#538d4e' },
+  btnSolo: { backgroundColor: '#3a3a3c', marginTop: 8 },
   btnDisabled: { opacity: 0.5 },
   btnText: { color: '#ffffff', fontSize: 17, fontWeight: '800' },
   back: { alignItems: 'center', marginTop: 12 },

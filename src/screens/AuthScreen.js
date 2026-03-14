@@ -37,9 +37,23 @@ export default function AuthScreen() {
         </View>
 
         <Text style={styles.title}>WORD <Text style={styles.titleAccent}>GUESS</Text></Text>
-        <Text style={styles.subtitle}>Sign in to play</Text>
+        <Text style={styles.subtitle}>Multiplayer word game · No account needed</Text>
 
         <View style={styles.buttons}>
+          {/* Primary: Play now — no account required */}
+          <TouchableOpacity style={styles.playBtn} onPress={handleGuest} activeOpacity={0.8}>
+            <Text style={styles.playBtnText}>Play Now</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.noAccountNote}>No sign-in required. Just enter your name and play.</Text>
+
+          {/* Divider */}
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or sign in (coming soon)</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
           {/* Google */}
           <TouchableOpacity
             style={[styles.btn, styles.btnGoogle]}
@@ -71,11 +85,6 @@ export default function AuthScreen() {
             <Text style={[styles.btnIcon, { color: '#ffffff' }]}>f</Text>
             <Text style={[styles.btnText, { color: '#ffffff' }]}>Continue with Facebook</Text>
           </TouchableOpacity>
-
-          {/* Guest */}
-          <TouchableOpacity style={styles.guestBtn} onPress={handleGuest} activeOpacity={0.7}>
-            <Text style={styles.guestText}>Continue as Guest</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -94,17 +103,26 @@ const styles = StyleSheet.create({
   tileLetter: { color: '#fff', fontSize: 22, fontWeight: '900' },
   title: { fontSize: 36, fontWeight: '900', color: '#ffffff', letterSpacing: 6, marginBottom: 6 },
   titleAccent: { color: '#538d4e' },
-  subtitle: { color: '#818384', fontSize: 14, letterSpacing: 2, marginBottom: 40 },
+  subtitle: { color: '#818384', fontSize: 14, letterSpacing: 1, marginBottom: 40, textAlign: 'center' },
   buttons: { width: '100%', gap: 12 },
+  playBtn: {
+    backgroundColor: '#538d4e',
+    borderRadius: 14, paddingVertical: 16,
+    alignItems: 'center',
+  },
+  playBtnText: { color: '#ffffff', fontSize: 18, fontWeight: '800', letterSpacing: 1 },
+  noAccountNote: { color: '#818384', fontSize: 13, textAlign: 'center' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#3a3a3c' },
+  dividerText: { color: '#535356', fontSize: 12 },
   btn: {
     flexDirection: 'row', alignItems: 'center',
     borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, gap: 12,
+    opacity: 0.5,
   },
   btnGoogle:   { backgroundColor: '#ffffff' },
   btnApple:    { backgroundColor: '#000000', borderWidth: 1, borderColor: '#3a3a3c' },
   btnFacebook: { backgroundColor: '#1877F2' },
   btnIcon: { fontSize: 18, fontWeight: '900', width: 24, textAlign: 'center' },
   btnText: { fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
-  guestBtn: { alignItems: 'center', paddingVertical: 14 },
-  guestText: { color: '#818384', fontSize: 14, fontWeight: '600' },
 });

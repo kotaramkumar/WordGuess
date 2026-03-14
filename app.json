@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "scheme": "wordguess",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -33,7 +34,8 @@
         ]
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "This identifier is used to personalize your experience and improve the app."
       }
     },
     "android": {
@@ -44,7 +46,22 @@
       },
       "package": "com.kotaramkumar.wordguess",
       "versionCode": 1,
-      "permissions": []
+      "permissions": [],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "wordguess"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -53,6 +70,9 @@
       "eas": {
         "projectId": "46af49ad-8f7d-479d-bddb-83e6b383c527"
       }
-    }
+    },
+    "plugins": [
+      "expo-tracking-transparency"
+    ]
   }
 }
